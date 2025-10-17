@@ -45,5 +45,4 @@ pinterest_cookies.json
 *.tmp
 *.temp
 
-# Backup files
-*.sh
+# Backup files (deploy.sh is tracked)
