@@ -40,6 +40,10 @@ logs/
 pinterest_cookies.json
 *.json.bak
 
+# Google Drive OAuth
+credentials.json
+gdrive_token.json
+
 # Temporary files
 /tmp/
 *.tmp

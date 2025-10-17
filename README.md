@@ -1,39 +1,37 @@
 # Behance & Pinterest Image Scraper
 
-A production-ready web scraper for Behance projects and Pinterest boards with browser automation, MongoDB storage, and autonomous operation.
+A lightweight web scraper for Behance projects and Pinterest boards with browser automation, local storage, and Google Drive upload.
 
 ## Features
 
 - **Dual Platform Support**: Scrape both Behance projects and Pinterest boards
 - **Browser Automation**: Playwright with stealth mode for realistic browsing
 - **Pinterest Authentication**: Google OAuth login with cookie persistence
-- **MongoDB Storage**: Flexible schema for projects, boards, pins, and images
-- **Image Pipeline**: Concurrent downloads with organized folder structure
-- **Autonomous Operation**: Cron job support for scheduled scraping
+- **Local Storage**: Images saved to organized local folders
+- **Google Drive Upload**: One-command upload to your Google Drive
+- **No Database Required**: Simple, lightweight, file-based storage
 - **CLI Interface**: Easy-to-use command-line tools
 
 ## Project Structure
 
 ```
 behance/
-├── scripts/              # Executable scripts
-│   ├── scrape_behance.py    # Behance scraper CLI
-│   ├── scrape_pinterest.py  # Pinterest scraper CLI
-│   ├── cron_scraper.py      # Autonomous cron job
-│   └── deploy.sh            # Deployment script
-├── src/                  # Core library
-│   ├── auth/                # Pinterest authentication
-│   ├── browser/             # Playwright automation
-│   ├── extractors/          # Data extraction logic
-│   ├── models/              # Pydantic data models
-│   └── storage/             # MongoDB & image pipeline
-├── docs/                 # Documentation
-│   └── DEPLOYMENT.md        # Raspberry Pi deployment guide
-├── behance_images/       # Behance downloads (gitignored)
-├── pinterest_images/     # Pinterest downloads (gitignored)
-├── .env.example         # Environment template
-├── docker-compose.yml   # MongoDB container
-└── requirements.txt     # Python dependencies
+├── scripts/                  # Executable scripts
+│   ├── scrape_behance.py        # Behance scraper
+│   ├── scrape_pinterest.py      # Pinterest scraper
+│   ├── upload_to_gdrive.py      # Upload to Google Drive
+│   └── deploy.sh                # Deployment script
+├── src/                      # Core library
+│   ├── auth/                    # Pinterest authentication
+│   ├── browser/                 # Playwright automation
+│   ├── extractors/              # Data extraction logic
+│   └── models/                  # Pydantic data models
+├── docs/                     # Documentation
+│   ├── DEPLOYMENT.md            # Raspberry Pi deployment guide
+│   └── GOOGLE_DRIVE_SETUP.md    # Google Drive upload setup
+├── behance_images/           # Behance downloads (gitignored)
+├── pinterest_images/         # Pinterest downloads (gitignored)
+└── requirements.txt          # Python dependencies
 ```
 
 ## Installation
@@ -52,49 +50,17 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 playwright install chromium
-
-# Setup environment
-cp .env.example .env
-
-# Start MongoDB (Docker)
-docker-compose up -d
-```
-
-### Manual MongoDB Installation
-
-```bash
-# macOS
-brew install mongodb-community
-
-# Ubuntu/Debian
-sudo apt-get install mongodb-org
-
-# Start MongoDB
-mongod --dbpath ./data
 ```
 
 ## Usage
 
-### Scrape Behance
-
-```bash
-# Search for projects
-python3 scripts/scrape_behance.py --search "logo design" --max 20
-
-# Scrape user's projects
-python3 scripts/scrape_behance.py --user adobe --max 10
-
-# Scrape trending projects
-python3 scripts/scrape_behance.py --trending --max 15
-```
-
-### Scrape Pinterest
+### 1. Scrape Pinterest Images
 
 ```bash
 # Scrape all boards from a profile
 python3 scripts/scrape_pinterest.py --username sangichandresh
 
-# With authentication (recommended)
+# With authentication (recommended for private boards)
 python3 scripts/scrape_pinterest.py \
   --username sangichandresh \
   --email your@email.com \
@@ -104,58 +70,52 @@ python3 scripts/scrape_pinterest.py \
 python3 scripts/scrape_pinterest.py \
   --username sangichandresh \
   --cookies-path ./pinterest_cookies.json
-
-# Limit boards and pins
-python3 scripts/scrape_pinterest.py \
-  --username sangichandresh \
-  --max-boards 5 \
-  --max-pins 100
 ```
 
-### Autonomous Operation
+### 2. Upload to Google Drive
 
 ```bash
-# Run both scrapers
-python3 scripts/cron_scraper.py
+# Upload all Pinterest images to Google Drive
+python3 scripts/upload_to_gdrive.py
 
-# Setup cron job (runs daily at 2 AM)
-(crontab -l 2>/dev/null; echo "0 2 * * * cd $(pwd) && python3 scripts/cron_scraper.py >> logs/cron.log 2>&1") | crontab -
+# First time: Browser will open for Google authentication
+# Future runs: Uses saved token automatically
 ```
 
-## Configuration
+**Setup Google Drive (first time only):**
+See detailed guide: **[docs/GOOGLE_DRIVE_SETUP.md](docs/GOOGLE_DRIVE_SETUP.md)**
 
-Edit `scripts/cron_scraper.py` to configure autonomous scraping:
+Quick steps:
+1. Go to https://console.cloud.google.com/
+2. Enable Google Drive API
+3. Create OAuth Desktop credentials
+4. Download as `credentials.json`
+5. Run the uploader script
 
-```python
-self.config = {
-    'behance': {
-        'urls': [
-            'https://www.behance.net/search/projects?search=branding',
-            'https://www.behance.net/search/projects?search=logo',
-        ],
-        'max_projects': 5,
-    },
-    'pinterest': {
-        'username': 'your_username',
-        'email': 'your@email.com',
-        'password': 'your_password',
-        'max_pins': 10000,
-    }
-}
-```
+### 3. Scrape Behance (Optional)
 
-## Deployment
-
-### Raspberry Pi Deployment
-
-See comprehensive deployment guide: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
-
-Quick deployment:
 ```bash
-bash scripts/deploy.sh
+# Search for projects
+python3 scripts/scrape_behance.py --search "logo design" --max 20
+
+# Scrape user's projects
+python3 scripts/scrape_behance.py --user adobe --max 10
 ```
 
 ## Output Structure
+
+### Pinterest Images
+```
+pinterest_images/
+└── [username]/
+    ├── [Board Name 1]/
+    │   ├── image_001.jpg
+    │   ├── image_002.jpg
+    │   └── ...
+    ├── [Board Name 2]/
+    │   └── ...
+    └── ...
+```
 
 ### Behance Images
 ```
@@ -166,40 +126,28 @@ behance_images/
     └── ...
 ```
 
-### Pinterest Images
+## Google Drive Upload
+
+The uploader script:
+- ✅ Maintains folder structure
+- ✅ Shows real-time progress
+- ✅ Resumes from interruptions
+- ✅ Supports any directory
+- ✅ Secure OAuth authentication
+
+**Example:**
+```bash
+# Upload Pinterest images (default)
+python3 scripts/upload_to_gdrive.py
+
+# Upload Behance images
+python3 scripts/upload_to_gdrive.py --dir ./behance_images
+
+# Custom folder name on Google Drive
+python3 scripts/upload_to_gdrive.py --folder-name "My Collection"
 ```
-pinterest_images/
-└── [username]/
-    ├── [Board Name 1]/
-    │   ├── image_001.jpg
-    │   └── ...
-    ├── [Board Name 2]/
-    │   └── ...
-    └── ...
-```
 
-## Development
-
-### Project is organized for clarity and maintainability:
-
-- **scripts/** - All executable entry points
-- **src/** - Reusable library code
-- **docs/** - Documentation
-- Clean separation of concerns
-- Type hints with Pydantic models
-- Async/await throughout
-
-### MongoDB Collections
-
-**Behance:**
-- `behance_projects` - Project metadata
-- `behance_users` - User profiles
-- `behance_images` - Image references
-
-**Pinterest:**
-- `pinterest_profiles` - Profile data
-- `pinterest_boards` - Board information
-- `pinterest_pins` - Pin metadata
+View uploaded files: https://drive.google.com/drive/my-drive
 
 ## Troubleshooting
 
@@ -210,10 +158,10 @@ If authentication fails:
 3. Check for captchas
 4. Verify credentials are correct
 
-### Memory Issues on Raspberry Pi
-- Reduce `max_projects` and `max_pins` in config
-- Run scrapers sequentially instead of parallel
-- Increase swap space
+### Google Drive Upload Issues
+- **"credentials.json not found"**: Download OAuth credentials from Google Cloud Console
+- **"Access blocked"**: Click "Advanced" → "Go to app (unsafe)" - your personal app is safe
+- **Upload timeout**: Check internet connection, script will resume from where it stopped
 
 ### Browser Issues
 ```bash
@@ -221,6 +169,34 @@ If authentication fails:
 playwright install chromium
 playwright install-deps chromium
 ```
+
+## Why No Database?
+
+This scraper is designed to be **simple and lightweight**:
+- No MongoDB or database installation required
+- Images saved directly to folders
+- Easy to backup - just copy the folders
+- Upload anywhere - Google Drive, Dropbox, etc.
+- Perfect for Raspberry Pi deployment
+
+## Raspberry Pi Deployment
+
+See comprehensive deployment guide: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
+
+Quick deployment:
+```bash
+bash scripts/deploy.sh
+```
+
+## Development
+
+### Clean Architecture:
+- **scripts/** - All executable entry points
+- **src/** - Reusable library code
+- **docs/** - Documentation
+- Type hints with Pydantic models
+- Async/await throughout
+- No database dependencies
 
 ## License
 
