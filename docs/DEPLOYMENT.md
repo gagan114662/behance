@@ -150,7 +150,7 @@ ls -la
 git branch
 ```
 
-**EXPECTED OUTPUT:** Should see all project files including `scrape_behance_images.py`, `scrape_pinterest_images.py`, `cron_scraper.py`
+**EXPECTED OUTPUT:** Should see organized folders: `scripts/`, `docs/`, `src/`, and core files
 
 ---
 
@@ -301,7 +301,7 @@ source ~/behance/venv/bin/activate
 cd ~/behance
 
 # Run Behance scraper with small test
-python3 scrape_behance_images.py --search "logo" --max 2
+python3 scripts/scrape_behance.py --search "logo" --max 2
 ```
 
 **EXPECTED OUTPUT:**
@@ -327,7 +327,7 @@ python3 scrape_behance_images.py --search "logo" --max 2
 ### 7.2 Test Pinterest Scraper
 ```bash
 # Run Pinterest scraper with authentication
-python3 scrape_pinterest_images.py \
+python3 scripts/scrape_pinterest.py \
   --username sangichandresh \
   --email "gagan@getfoolish.com" \
   --password "vandanchopra@114" \
@@ -353,7 +353,7 @@ python3 scrape_pinterest_images.py \
 ### 7.3 Test Cron Job Script
 ```bash
 # Run cron script manually to test (this will take 5-10 minutes)
-python3 cron_scraper.py 2>&1 | tee logs/manual_test.log
+python3 scripts/cron_scraper.py 2>&1 | tee logs/manual_test.log
 
 # Check the log
 tail -50 logs/manual_test.log
@@ -376,7 +376,7 @@ cd /home/pi/behance
 source venv/bin/activate
 
 # Run scraper
-python3 cron_scraper.py
+python3 scripts/cron_scraper.py
 
 # Exit
 exit 0
@@ -524,7 +524,7 @@ playwright install-deps chromium
 rm ~/behance/pinterest_cookies.json
 
 # Run with visible browser to debug
-python3 scrape_pinterest_images.py \
+python3 scripts/scrape_pinterest.py \
   --username sangichandresh \
   --email "gagan@getfoolish.com" \
   --password "vandanchopra@114" \
@@ -604,7 +604,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Test updated code
-python3 scrape_behance_images.py --search "test" --max 1
+python3 scripts/scrape_behance.py --search "test" --max 1
 ```
 
 ### 11.2 Rollback if Something Breaks
@@ -664,7 +664,7 @@ mongorestore --db pinterest_crawler ~/behance_backups/pinterest_YYYYMMDD/pintere
 
 ### Recommended Settings for Raspberry Pi 4 (4GB RAM)
 
-**Edit cron_scraper.py configuration:**
+**Edit scripts/cron_scraper.py configuration:**
 ```python
 'behance': {
     'max_projects': 3,  # Lower for Pi (default was 5)
@@ -676,15 +676,15 @@ mongorestore --db pinterest_crawler ~/behance_backups/pinterest_YYYYMMDD/pintere
 
 **Increase timeout for slower Pi:**
 ```python
-# In scrape_behance_images.py and scrape_pinterest_images.py
+# In scripts/scrape_behance.py and scripts/scrape_pinterest.py
 timeout=60000  # Change from 30000 to 60000 (60 seconds)
 ```
 
 **Run scrapers sequentially (not parallel):**
 ```bash
 # Instead of running cron_scraper.py, run individually:
-python3 scrape_behance_images.py --search "design" --max 3
-python3 scrape_pinterest_images.py --username sangichandresh --max-boards 10
+python3 scripts/scrape_behance.py --search "design" --max 3
+python3 scripts/scrape_pinterest.py --username sangichandresh --max-boards 10
 ```
 
 ---
@@ -699,8 +699,8 @@ Before considering deployment complete, verify:
 - [ ] Dependencies installed: `pip list | grep playwright`
 - [ ] Playwright browsers installed: `playwright --version`
 - [ ] Environment variables configured: `cat ~/behance/.env`
-- [ ] Behance scraper works: `python3 scrape_behance_images.py --search "test" --max 1`
-- [ ] Pinterest scraper works: `python3 scrape_pinterest_images.py --username sangichandresh --max-boards 1`
+- [ ] Behance scraper works: `python3 scripts/scrape_behance.py --search "test" --max 1`
+- [ ] Pinterest scraper works: `python3 scripts/scrape_pinterest.py --username sangichandresh --max-boards 1`
 - [ ] Cron job configured: `crontab -l`
 - [ ] Logs directory created: `ls ~/behance/logs`
 - [ ] MongoDB has data: `mongosh behance_crawler --eval "db.projects.countDocuments({})"`

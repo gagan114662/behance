@@ -5,16 +5,20 @@ This script runs both scrapers and can be scheduled via cron for automated execu
 
 Example crontab entries:
     # Run daily at 2 AM
-    0 2 * * * cd /Users/gaganarora/Desktop/gagan_projects/behance && python3 cron_scraper.py >> logs/cron.log 2>&1
+    0 2 * * * cd /path/to/behance && python3 scripts/cron_scraper.py >> logs/cron.log 2>&1
 
     # Run every 6 hours
-    0 */6 * * * cd /Users/gaganarora/Desktop/gagan_projects/behance && python3 cron_scraper.py >> logs/cron.log 2>&1
+    0 */6 * * * cd /path/to/behance && python3 scripts/cron_scraper.py >> logs/cron.log 2>&1
 """
 
 import asyncio
 import sys
+import os
 from datetime import datetime
 from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Behance imports
 from src.browser.manager import BrowserManager, BrowserConfig
