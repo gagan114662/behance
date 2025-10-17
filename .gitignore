@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Downloaded images and data
+behance_images/
+behance_images_organized/
+pinterest_images/
+pinterest_images_organized/
+*.tar.gz
+
+# Logs
+logs/
+*.log
+
+# Credentials and cookies
+pinterest_cookies.json
+*.json.bak
+
+# Temporary files
+/tmp/
+*.tmp
+*.temp
+
+# Backup files
+*.sh
